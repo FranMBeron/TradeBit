@@ -1,0 +1,14 @@
+{
+  "name": "@tradebit/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./types": "./src/types.ts",
+    "./constants": "./src/constants.ts",
+    "./validators": "./src/validators.ts"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
+  }
+}
