@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { LIMITS } from "./constants.ts";
+import { LIMITS, REACTION_TYPES } from "./constants.ts";
 
 export const usernameSchema = z
   .string()
@@ -24,3 +24,16 @@ export const loginSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const createPostSchema = z.object({
+  content: z.string().min(1).max(LIMITS.POST_MAX_LENGTH),
+  tradeTicker: z.string().max(10).optional(),
+  tradeAction: z.enum(["BUY", "SELL"]).optional(),
+  tradeAmount: z.number().positive().optional(),
+});
+
+export const reactionSchema = z.object({
+  type: z.enum(REACTION_TYPES),
+});
+
+export type CreatePostInput = z.infer<typeof createPostSchema>;
