@@ -6,6 +6,7 @@ import { APP_NAME } from "@tradebit/shared/constants";
 import { db } from "./db/index.js";
 import { sql } from "drizzle-orm";
 import { authRoutes } from "./modules/auth/auth.controller.js";
+import { wallbitRoutes } from "./modules/wallbit/wallbit.controller.js";
 
 const server = Fastify({
   logger: true,
@@ -19,6 +20,7 @@ await server.register(cors, {
 await server.register(cookie);
 await server.register(rateLimit, { max: 100, timeWindow: "1 minute" });
 await server.register(authRoutes, { prefix: "/api/v1" });
+await server.register(wallbitRoutes, { prefix: "/api/v1" });
 
 server.get("/health", async () => {
   try {
