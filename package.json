@@ -22,7 +22,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
-      "sharp"
+      "sharp",
+      "bcrypt"
     ]
   }
 }
