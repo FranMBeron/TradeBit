@@ -148,6 +148,7 @@ async function seed() {
     {
       sourcePostId: post1!.id,
       copierId: bob!.id,
+      requestedAmount: "500",
       status: "executed" as const,
       executedAt: new Date(),
     },

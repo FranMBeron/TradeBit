@@ -36,4 +36,8 @@ export const reactionSchema = z.object({
   type: z.enum(REACTION_TYPES),
 });
 
+export const copyTradeSchema = z.object({
+  amount: z.number().positive(),
+});
+
 export type CreatePostInput = z.infer<typeof createPostSchema>;

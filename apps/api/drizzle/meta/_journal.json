@@ -8,6 +8,13 @@
       "when": 1771368040563,
       "tag": "0000_bouncy_komodo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771382678796,
+      "tag": "0001_serious_black_queen",
+      "breakpoints": true
     }
   ]
 }

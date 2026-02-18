@@ -1,0 +1,1 @@
+ALTER TABLE "copy_trades" ADD COLUMN "requested_amount" numeric(12, 2) NOT NULL;

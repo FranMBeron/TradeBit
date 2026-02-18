@@ -140,6 +140,7 @@ export const copyTrades = pgTable(
     copierId: uuid("copier_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    requestedAmount: decimal("requested_amount", { precision: 12, scale: 2 }).notNull(),
     status: copyTradeStatusEnum("status").default("pending").notNull(),
     errorMessage: text("error_message"),
     executedAt: timestamp("executed_at"),
