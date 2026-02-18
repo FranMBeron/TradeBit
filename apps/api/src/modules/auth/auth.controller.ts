@@ -17,6 +17,9 @@ import {
 const REFRESH_COOKIE = "refresh_token";
 const REFRESH_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 
+const ACCESS_COOKIE = "access_token";
+const ACCESS_MAX_AGE = 15 * 60; // 15 minutes in seconds
+
 export async function authRoutes(server: FastifyInstance) {
   // ── POST /auth/register ───────────────────────────────────
   server.post(
@@ -60,6 +63,14 @@ export async function authRoutes(server: FastifyInstance) {
         maxAge: REFRESH_MAX_AGE,
       });
 
+      reply.setCookie(ACCESS_COOKIE, accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: ACCESS_MAX_AGE,
+      });
+
       return reply.status(201).send({ user: sanitizeUser(user), accessToken });
     },
   );
@@ -98,6 +109,14 @@ export async function authRoutes(server: FastifyInstance) {
         maxAge: REFRESH_MAX_AGE,
       });
 
+      reply.setCookie(ACCESS_COOKIE, accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: ACCESS_MAX_AGE,
+      });
+
       return { user: sanitizeUser(user), accessToken };
     },
   );
@@ -117,10 +136,30 @@ export async function authRoutes(server: FastifyInstance) {
       }
 
       const accessToken = signAccessToken({ userId: user.id, email: user.email });
+      reply.setCookie(ACCESS_COOKIE, accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: ACCESS_MAX_AGE,
+      });
       return { accessToken };
     } catch {
       return reply.status(401).send({ error: "Invalid refresh token" });
     }
+  });
+
+  // ── POST /auth/logout ─────────────────────────────────────
+  server.post("/auth/logout", async (_request, reply) => {
+    const cookieOpts = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict" as const,
+      path: "/",
+    };
+    reply.clearCookie(ACCESS_COOKIE, cookieOpts);
+    reply.clearCookie(REFRESH_COOKIE, cookieOpts);
+    return { loggedOut: true };
   });
 
   // ── GET /auth/me ──────────────────────────────────────────

@@ -1,12 +1,5 @@
-import { APP_NAME } from "@tradebit/shared/constants";
-import { Button } from "@/components/ui/button";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">{APP_NAME}</h1>
-      <p className="text-muted-foreground">Social trading powered by Wallbit</p>
-      <Button>Get Started</Button>
-    </main>
-  );
+export default function HomePage() {
+  redirect("/feed");
 }
