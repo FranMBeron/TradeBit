@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { wallbitKeys } from "../../db/schema.js";
+import { wallbitKeys, portfolioSnapshots } from "../../db/schema.js";
 import { encrypt, decrypt } from "./wallbit.vault.js";
 import { validateKey, getStockPortfolio, WallbitApiError } from "./wallbit.client.js";
 
@@ -34,6 +34,9 @@ export async function connectWallbitKey(userId: string, apiKey: string) {
         connectedAt: new Date(),
       },
     });
+
+  // Take initial portfolio snapshot (non-blocking — don't await)
+  takePortfolioSnapshot(userId, apiKey);
 
   return { connected: true };
 }
@@ -104,6 +107,37 @@ export async function getDecryptedKey(userId: string): Promise<string> {
     iv: key.iv,
     authTag: key.authTag,
   });
+}
+
+// ── Portfolio Snapshot ──────────────────────────────────────
+
+export async function takePortfolioSnapshot(userId: string, apiKey: string): Promise<number | null> {
+  try {
+    const positions = await getStockPortfolio(apiKey);
+
+    // Only track investment portfolio value (stocks), not checking account cash
+    const totalValue = positions.reduce((sum, p) => sum + p.usdBalance, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await db
+      .insert(portfolioSnapshots)
+      .values({
+        userId,
+        totalValue: totalValue.toString(),
+        snapshotDate: today,
+      })
+      .onConflictDoUpdate({
+        target: [portfolioSnapshots.userId, portfolioSnapshots.snapshotDate],
+        set: { totalValue: totalValue.toString() },
+      });
+
+    return totalValue;
+  } catch {
+    // Snapshot failure should never block the calling operation
+    return null;
+  }
 }
 
 // ── Error class ─────────────────────────────────────────────

@@ -8,6 +8,7 @@ import { sql } from "drizzle-orm";
 import { authRoutes } from "./modules/auth/auth.controller.js";
 import { wallbitRoutes } from "./modules/wallbit/wallbit.controller.js";
 import { postsRoutes } from "./modules/posts/posts.controller.js";
+import { socialRoutes } from "./modules/social/social.controller.js";
 
 const server = Fastify({
   logger: true,
@@ -23,6 +24,7 @@ await server.register(rateLimit, { max: 100, timeWindow: "1 minute" });
 await server.register(authRoutes, { prefix: "/api/v1" });
 await server.register(wallbitRoutes, { prefix: "/api/v1" });
 await server.register(postsRoutes, { prefix: "/api/v1" });
+await server.register(socialRoutes, { prefix: "/api/v1" });
 
 server.get("/health", async () => {
   try {

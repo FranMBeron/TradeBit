@@ -148,6 +148,24 @@ export const copyTrades = pgTable(
   (table) => [index("idx_copy_trades_copier").on(table.copierId)],
 );
 
+// --- Portfolio Snapshots ---
+export const portfolioSnapshots = pgTable(
+  "portfolio_snapshots",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    totalValue: decimal("total_value", { precision: 14, scale: 2 }).notNull(),
+    snapshotDate: timestamp("snapshot_date", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_snapshots_user_date").on(table.userId, table.snapshotDate),
+    index("idx_snapshots_user").on(table.userId),
+  ],
+);
+
 // ============================================================
 // Relations (for Drizzle query API)
 // ============================================================
@@ -159,6 +177,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   following: many(follows, { relationName: "follower" }),
   reactions: many(reactions),
   copyTrades: many(copyTrades),
+  portfolioSnapshots: many(portfolioSnapshots),
 }));
 
 export const wallbitKeysRelations = relations(wallbitKeys, ({ one }) => ({
@@ -208,6 +227,13 @@ export const copyTradesRelations = relations(copyTrades, ({ one }) => ({
   }),
   copier: one(users, {
     fields: [copyTrades.copierId],
+    references: [users.id],
+  }),
+}));
+
+export const portfolioSnapshotsRelations = relations(portfolioSnapshots, ({ one }) => ({
+  user: one(users, {
+    fields: [portfolioSnapshots.userId],
     references: [users.id],
   }),
 }));
