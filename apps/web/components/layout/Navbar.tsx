@@ -13,8 +13,26 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-14 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-4">
-        {/* Logo */}
-        <span className="text-lg font-bold text-primary tracking-tight">TradeBit</span>
+        {/* Logo + nav */}
+        <div className="flex items-center gap-5">
+          <span className="text-lg font-bold text-primary tracking-tight">TradeBit</span>
+          {user && (
+            <nav className="flex items-center gap-4">
+              <Link
+                href="/feed"
+                className="text-sm text-muted-foreground hover:text-foreground transition"
+              >
+                Feed
+              </Link>
+              <Link
+                href="/copy-trades"
+                className="text-sm text-muted-foreground hover:text-foreground transition"
+              >
+                Trades
+              </Link>
+            </nav>
+          )}
+        </div>
 
         {/* User info + logout */}
         {user && (
