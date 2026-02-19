@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "node:crypto";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
@@ -43,4 +43,12 @@ export function decrypt(data: EncryptedData): string {
   let decrypted = decipher.update(data.encryptedKey, "base64", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
+}
+
+export function hashKey(plaintext: string): string {
+  const secret = process.env.KEY_HASH_SECRET;
+  if (!secret) {
+    throw new Error("KEY_HASH_SECRET env var is required");
+  }
+  return createHmac("sha256", secret).update(plaintext).digest("hex");
 }

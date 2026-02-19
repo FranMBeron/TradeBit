@@ -46,6 +46,8 @@ export const users = pgTable("users", {
   avatarUrl: varchar("avatar_url", { length: 500 }),
   bio: text("bio"),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  emailVerifiedAt: timestamp("email_verified_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -53,19 +55,39 @@ export const users = pgTable("users", {
     .$onUpdate(() => new Date()),
 });
 
+// --- Email Verification Tokens ---
+export const emailVerificationTokens = pgTable(
+  "email_verification_tokens",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("idx_email_tokens_user").on(table.userId)],
+);
+
 // --- Wallbit Keys ---
-export const wallbitKeys = pgTable("wallbit_keys", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: "cascade" }),
-  encryptedKey: text("encrypted_key").notNull(),
-  iv: text("iv").notNull(),
-  authTag: text("auth_tag").notNull(),
-  isValid: boolean("is_valid").default(true).notNull(),
-  connectedAt: timestamp("connected_at").defaultNow().notNull(),
-});
+export const wallbitKeys = pgTable(
+  "wallbit_keys",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    encryptedKey: text("encrypted_key").notNull(),
+    iv: text("iv").notNull(),
+    authTag: text("auth_tag").notNull(),
+    keyHash: varchar("key_hash", { length: 64 }).notNull().default(""),
+    isValid: boolean("is_valid").default(true).notNull(),
+    connectedAt: timestamp("connected_at").defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("idx_wallbit_keys_hash").on(table.keyHash)],
+);
 
 // --- Posts ---
 export const posts = pgTable(
@@ -179,7 +201,18 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   reactions: many(reactions),
   copyTrades: many(copyTrades),
   portfolioSnapshots: many(portfolioSnapshots),
+  emailVerificationTokens: many(emailVerificationTokens),
 }));
+
+export const emailVerificationTokensRelations = relations(
+  emailVerificationTokens,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [emailVerificationTokens.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const wallbitKeysRelations = relations(wallbitKeys, ({ one }) => ({
   user: one(users, {

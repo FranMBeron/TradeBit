@@ -23,6 +23,12 @@ Thumbs.db
 # Claude
 .Claude/
 
+# Playwright MCP (console logs de sesiones de testing)
+.playwright-mcp/
+
+# Screenshots de desarrollo
+.screenshots/
+
 # Turbo
 .turbo/
 

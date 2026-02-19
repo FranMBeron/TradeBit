@@ -12,7 +12,10 @@ import {
   findUserById,
   createUser,
   sanitizeUser,
+  createVerificationToken,
+  verifyEmailToken,
 } from "./auth.service.js";
+import { sendVerificationEmail } from "../../lib/email.js";
 
 const REFRESH_COOKIE = "refresh_token";
 const REFRESH_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
@@ -20,7 +23,16 @@ const REFRESH_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 const ACCESS_COOKIE = "access_token";
 const ACCESS_MAX_AGE = 15 * 60; // 15 minutes in seconds
 
+const COOKIE_OPTS = (secure: boolean) => ({
+  httpOnly: true,
+  secure,
+  sameSite: "strict" as const,
+  path: "/",
+});
+
 export async function authRoutes(server: FastifyInstance) {
+  const isSecure = process.env.NODE_ENV === "production";
+
   // ── POST /auth/register ───────────────────────────────────
   server.post(
     "/auth/register",
@@ -33,7 +45,6 @@ export async function authRoutes(server: FastifyInstance) {
 
       const { email, username, password } = parsed.data;
 
-      // Check uniqueness
       const [existingEmail, existingUsername] = await Promise.all([
         findUserByEmail(email),
         findUserByUsername(username),
@@ -46,32 +57,13 @@ export async function authRoutes(server: FastifyInstance) {
         return reply.status(409).send({ error: "Username already taken" });
       }
 
-      // Create user
       const passwordHash = await hashPassword(password);
       const user = await createUser({ email, username, passwordHash });
 
-      // Sign tokens
-      const tokenPayload = { userId: user.id, email: user.email };
-      const accessToken = signAccessToken(tokenPayload);
-      const refreshToken = signRefreshToken(tokenPayload);
+      const token = await createVerificationToken(user.id);
+      await sendVerificationEmail(user.email, token);
 
-      reply.setCookie(REFRESH_COOKIE, refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
-        maxAge: REFRESH_MAX_AGE,
-      });
-
-      reply.setCookie(ACCESS_COOKIE, accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
-        maxAge: ACCESS_MAX_AGE,
-      });
-
-      return reply.status(201).send({ user: sanitizeUser(user), accessToken });
+      return reply.status(201).send({ email: user.email });
     },
   );
 
@@ -97,27 +89,84 @@ export async function authRoutes(server: FastifyInstance) {
         return reply.status(401).send({ error: "Invalid email or password" });
       }
 
+      if (!user.emailVerified) {
+        return reply.status(403).send({ error: "Email not verified. Please check your inbox." });
+      }
+
       const tokenPayload = { userId: user.id, email: user.email };
       const accessToken = signAccessToken(tokenPayload);
       const refreshToken = signRefreshToken(tokenPayload);
 
       reply.setCookie(REFRESH_COOKIE, refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
+        ...COOKIE_OPTS(isSecure),
         maxAge: REFRESH_MAX_AGE,
       });
-
       reply.setCookie(ACCESS_COOKIE, accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
+        ...COOKIE_OPTS(isSecure),
         maxAge: ACCESS_MAX_AGE,
       });
 
       return { user: sanitizeUser(user), accessToken };
+    },
+  );
+
+  // ── POST /auth/verify-email ───────────────────────────────
+  server.post("/auth/verify-email", async (request, reply) => {
+    const body = request.body as { token?: string };
+    if (!body.token || typeof body.token !== "string") {
+      return reply.status(400).send({ error: "Token is required" });
+    }
+
+    try {
+      const { userId } = await verifyEmailToken(body.token);
+      const user = await findUserById(userId);
+      if (!user) {
+        return reply.status(404).send({ error: "User not found" });
+      }
+
+      const tokenPayload = { userId: user.id, email: user.email };
+      const accessToken = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(tokenPayload);
+
+      reply.setCookie(REFRESH_COOKIE, refreshToken, {
+        ...COOKIE_OPTS(isSecure),
+        maxAge: REFRESH_MAX_AGE,
+      });
+      reply.setCookie(ACCESS_COOKIE, accessToken, {
+        ...COOKIE_OPTS(isSecure),
+        maxAge: ACCESS_MAX_AGE,
+      });
+
+      return reply.status(200).send({ user: sanitizeUser(user) });
+    } catch (err) {
+      if (err instanceof Error && err.message === "INVALID_OR_EXPIRED_TOKEN") {
+        return reply.status(400).send({ error: "This link is invalid or has expired." });
+      }
+      throw err;
+    }
+  });
+
+  // ── POST /auth/resend-verification ───────────────────────
+  server.post(
+    "/auth/resend-verification",
+    { config: { rateLimit: { max: 3, timeWindow: "5 minutes" } } },
+    async (request, reply) => {
+      const body = request.body as { email?: string };
+      if (!body.email || typeof body.email !== "string") {
+        return reply.status(400).send({ error: "Email is required" });
+      }
+
+      const user = await findUserByEmail(body.email);
+
+      // Always return 200 to prevent user enumeration
+      if (!user || user.emailVerified) {
+        return reply.status(200).send({ sent: true });
+      }
+
+      const token = await createVerificationToken(user.id);
+      await sendVerificationEmail(user.email, token);
+
+      return reply.status(200).send({ sent: true });
     },
   );
 
@@ -137,10 +186,7 @@ export async function authRoutes(server: FastifyInstance) {
 
       const accessToken = signAccessToken({ userId: user.id, email: user.email });
       reply.setCookie(ACCESS_COOKIE, accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: "/",
+        ...COOKIE_OPTS(isSecure),
         maxAge: ACCESS_MAX_AGE,
       });
       return { accessToken };
@@ -151,14 +197,8 @@ export async function authRoutes(server: FastifyInstance) {
 
   // ── POST /auth/logout ─────────────────────────────────────
   server.post("/auth/logout", async (_request, reply) => {
-    const cookieOpts = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict" as const,
-      path: "/",
-    };
-    reply.clearCookie(ACCESS_COOKIE, cookieOpts);
-    reply.clearCookie(REFRESH_COOKIE, cookieOpts);
+    reply.clearCookie(ACCESS_COOKIE, COOKIE_OPTS(isSecure));
+    reply.clearCookie(REFRESH_COOKIE, COOKIE_OPTS(isSecure));
     return { loggedOut: true };
   });
 

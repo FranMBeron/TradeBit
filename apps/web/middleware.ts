@@ -3,25 +3,45 @@ import { decodeToken, isTokenExpired } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
-const AUTH_ROUTES = ["/login", "/register", "/connect-wallbit"];
+// Rutas que redirigen a /feed si el usuario ya está autenticado
+const AUTH_ONLY_ROUTES = ["/login", "/register"];
+// Rutas accesibles siempre que el usuario esté autenticado (setup post-registro)
+const SETUP_ROUTES = ["/connect-wallbit"];
+// Rutas públicas: accesibles sin autenticación, nunca redirigidas
+const PUBLIC_ROUTES = ["/verify-email"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("access_token")?.value;
   const refreshToken = request.cookies.get("refresh_token")?.value;
 
-  const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
+  // Public routes bypass all auth checks
+  const isPublicRoute = PUBLIC_ROUTES.some((r) => pathname.startsWith(r));
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  const isAuthOnlyRoute = AUTH_ONLY_ROUTES.some((r) => pathname.startsWith(r));
+  const isSetupRoute = SETUP_ROUTES.some((r) => pathname.startsWith(r));
 
   // Decode token if present
   const payload = accessToken ? decodeToken(accessToken) : null;
   const tokenValid = payload !== null && !isTokenExpired(payload);
 
-  // Auth routes: redirect to feed if already logged in
-  if (isAuthRoute) {
+  // Login/register: redirigir a /feed si ya está autenticado
+  if (isAuthOnlyRoute) {
     if (tokenValid) {
       return NextResponse.redirect(new URL("/feed", request.url));
     }
     return NextResponse.next();
+  }
+
+  // Setup routes (connect-wallbit): accesibles si está autenticado, sino a /login
+  if (isSetupRoute) {
+    if (tokenValid) {
+      return NextResponse.next();
+    }
+    // sin token válido → intentar refresh o redirigir a login (cae al bloque de abajo)
   }
 
   // Protected routes: need valid token

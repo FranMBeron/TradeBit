@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { wallbitKeys, portfolioSnapshots } from "../../db/schema.js";
-import { encrypt, decrypt } from "./wallbit.vault.js";
+import { encrypt, decrypt, hashKey } from "./wallbit.vault.js";
 import { validateKey, getStockPortfolio, WallbitApiError } from "./wallbit.client.js";
 
 // ── Connect / Disconnect ────────────────────────────────────
@@ -10,6 +10,20 @@ export async function connectWallbitKey(userId: string, apiKey: string) {
   const isValid = await validateKey(apiKey);
   if (!isValid) {
     throw new ServiceError(400, "Invalid Wallbit API key");
+  }
+
+  const keyHash = hashKey(apiKey);
+
+  // Check if this key is already connected to a DIFFERENT user
+  const existingRows = await db
+    .select({ userId: wallbitKeys.userId })
+    .from(wallbitKeys)
+    .where(eq(wallbitKeys.keyHash, keyHash))
+    .limit(1);
+
+  const existingOwner = existingRows[0];
+  if (existingOwner && existingOwner.userId !== userId) {
+    throw new ServiceError(409, "This Wallbit API key is already connected to another account.");
   }
 
   const encrypted = encrypt(apiKey);
@@ -22,6 +36,7 @@ export async function connectWallbitKey(userId: string, apiKey: string) {
       encryptedKey: encrypted.encryptedKey,
       iv: encrypted.iv,
       authTag: encrypted.authTag,
+      keyHash,
       isValid: true,
     })
     .onConflictDoUpdate({
@@ -30,6 +45,7 @@ export async function connectWallbitKey(userId: string, apiKey: string) {
         encryptedKey: encrypted.encryptedKey,
         iv: encrypted.iv,
         authTag: encrypted.authTag,
+        keyHash,
         isValid: true,
         connectedAt: new Date(),
       },

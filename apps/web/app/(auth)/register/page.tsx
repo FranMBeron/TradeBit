@@ -30,11 +30,11 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await apiFetch("/auth/register", {
+      const data = await apiFetch<{ email: string }>("/auth/register", {
         method: "POST",
         body: form,
       });
-      router.push("/connect-wallbit");
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err: unknown) {
       const e = err as { error?: string; issues?: FieldError[] };
       if (e?.issues) {

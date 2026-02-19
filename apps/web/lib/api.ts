@@ -8,14 +8,16 @@ export async function apiFetch<T = unknown>(
 ): Promise<T> {
   const { body, headers, ...rest } = options;
 
+  const hasBody = body !== undefined;
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...rest,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(hasBody ? { "Content-Type": "application/json" } : {}),
       ...(headers as Record<string, string>),
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: hasBody ? JSON.stringify(body) : undefined,
   });
 
   if (!res.ok) {

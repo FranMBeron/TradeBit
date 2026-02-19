@@ -18,6 +18,7 @@ async function seed() {
   console.log("Seeding database...\n");
 
   // Clean existing data (in reverse FK order to respect foreign keys)
+  await db.delete(schema.emailVerificationTokens);
   await db.delete(schema.copyTrades);
   await db.delete(schema.reactions);
   await db.delete(schema.follows);
@@ -40,6 +41,7 @@ async function seed() {
         displayName: "Alice",
         bio: "Full-time trader. NVDA maximalist.",
         passwordHash,
+        emailVerified: true,
       },
       {
         email: "bob@example.com",
@@ -47,6 +49,7 @@ async function seed() {
         displayName: "Bob",
         bio: "Value investing enthusiast.",
         passwordHash,
+        emailVerified: true,
       },
       {
         email: "charlie@example.com",
@@ -54,6 +57,7 @@ async function seed() {
         displayName: "Charlie",
         bio: "Crypto & stocks. DYOR.",
         passwordHash,
+        emailVerified: true,
       },
     ])
     .returning();
@@ -61,18 +65,21 @@ async function seed() {
   console.log("  Created 3 users");
 
   // --- Wallbit Keys (alice and bob have connected accounts) ---
+  // keyHash uses unique placeholder values (not real HMAC hashes — seed data only)
   await db.insert(schema.wallbitKeys).values([
     {
       userId: alice!.id,
       encryptedKey: "fake-encrypted-key-alice",
       iv: "fake-iv-alice",
       authTag: "fake-tag-alice",
+      keyHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     },
     {
       userId: bob!.id,
       encryptedKey: "fake-encrypted-key-bob",
       iv: "fake-iv-bob",
       authTag: "fake-tag-bob",
+      keyHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     },
   ]);
 
