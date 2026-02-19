@@ -30,7 +30,7 @@ async function seed() {
   // Password is "password123" — pre-hashed with bcrypt (salt 12)
   // In production, auth.service.ts handles hashing dynamically
   const passwordHash =
-    "$2b$12$LJ3p4TiGBfJhGz3fEP.YiuWzgVkJV5v1GZfRZJhIzqJR6rCwPmTXe";
+    "$2b$12$CQH3DUmQu4sVLnxF02lCc.4KZEEMtPX/.kDtfV.0sG6df2PJAQNG6";
 
   const [alice, bob, charlie] = await db
     .insert(schema.users)

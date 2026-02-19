@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
 
 export function Navbar() {
@@ -21,9 +22,12 @@ export function Navbar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary ring-1 ring-primary/30">
               {initials}
             </div>
-            <span className="hidden text-sm text-muted-foreground sm:block">
+            <Link
+              href={`/${user.username}`}
+              className="hidden text-sm text-muted-foreground hover:text-foreground transition sm:block"
+            >
               @{user.username}
-            </span>
+            </Link>
             <button
               onClick={logout}
               className="text-xs text-muted-foreground underline underline-offset-4 transition hover:text-foreground"

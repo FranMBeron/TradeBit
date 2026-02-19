@@ -36,3 +36,24 @@ export interface AuthUser {
   bio: string | null;
   createdAt: string;
 }
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  createdAt: string;
+  stats: {
+    followers: number;
+    following: number;
+    posts: number;
+  };
+  isFollowing: boolean;
+  performanceChange: {
+    day: number | null;
+    week: number | null;
+    month: number | null;
+    year: number | null;
+  } | null;
+}
