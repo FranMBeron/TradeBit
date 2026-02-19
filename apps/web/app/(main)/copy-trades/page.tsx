@@ -6,22 +6,22 @@ import type { CopyTradeEntry } from "@/hooks/useCopyTradeHistory";
 
 const STATUS_STYLES = {
   executed: {
-    border: "border-l-emerald-500",
-    dot: "bg-emerald-400",
+    border: "border-l-[#63de77]",
+    dot: "bg-[#63de77]",
     label: "Executed",
-    text: "text-emerald-400",
+    text: "text-[#63de77]",
   },
   failed: {
-    border: "border-l-rose-500",
-    dot: "bg-rose-400",
+    border: "border-l-[#fe566b]",
+    dot: "bg-[#fe566b]",
     label: "Failed",
-    text: "text-rose-400",
+    text: "text-[#fe566b]",
   },
   pending: {
-    border: "border-l-amber-500",
-    dot: "bg-amber-400",
+    border: "border-l-[#ffc700]",
+    dot: "bg-[#ffc700]",
     label: "Pending",
-    text: "text-amber-400",
+    text: "text-[#ffc700]",
   },
 } as const;
 
@@ -44,8 +44,8 @@ function TradeRow({ trade }: { trade: CopyTradeEntry }) {
               <span
                 className={`text-xs font-bold px-1.5 py-0.5 rounded ${
                   isBuy
-                    ? "bg-primary/15 text-primary"
-                    : "bg-destructive/15 text-destructive"
+                    ? "bg-[#2e81fd]/15 text-[#2e81fd]"
+                    : "bg-[#fe566b]/15 text-[#fe566b]"
                 }`}
               >
                 {trade.post.tradeAction}
@@ -68,7 +68,7 @@ function TradeRow({ trade }: { trade: CopyTradeEntry }) {
           </Link>
         </div>
         {trade.status === "failed" && trade.errorMessage && (
-          <p className="text-xs text-rose-400 mt-0.5 truncate">{trade.errorMessage}</p>
+          <p className="text-xs text-[#fe566b] mt-0.5 truncate">{trade.errorMessage}</p>
         )}
       </div>
 
@@ -118,7 +118,7 @@ export default function CopyTradesPage() {
         ) : trades.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-sm text-muted-foreground mb-3">No copy trades yet.</p>
-            <Link href="/feed" className="text-sm text-primary hover:underline">
+            <Link href="/feed" className="text-sm text-[#0d99ff] hover:text-[#2e81fd] transition-colors">
               Browse the feed →
             </Link>
           </div>

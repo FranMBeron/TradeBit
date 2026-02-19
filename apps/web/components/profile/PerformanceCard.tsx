@@ -25,7 +25,7 @@ export function PerformanceCard({ perf }: Props) {
 
   return (
     <div className="bg-card border border-border rounded-xl p-5">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 font-heading">
         Portfolio Performance
       </p>
       <div className="grid grid-cols-4 gap-3">
@@ -43,9 +43,9 @@ export function PerformanceCard({ perf }: Props) {
               <span
                 className={`text-sm font-mono font-semibold ${
                   positive
-                    ? "text-emerald-400"
+                    ? "text-[#63de77]"
                     : negative
-                      ? "text-rose-400"
+                      ? "text-[#fe566b]"
                       : "text-muted-foreground"
                 }`}
               >
@@ -53,9 +53,9 @@ export function PerformanceCard({ perf }: Props) {
               </span>
               <span className="text-xs">
                 {positive ? (
-                  <span className="text-emerald-400">↑</span>
+                  <span className="text-[#63de77]">↑</span>
                 ) : negative ? (
-                  <span className="text-rose-400">↓</span>
+                  <span className="text-[#fe566b]">↓</span>
                 ) : (
                   <span className="text-muted-foreground">·</span>
                 )}

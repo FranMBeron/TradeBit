@@ -49,7 +49,7 @@ export function ReactionBar({ post, onReact }: ReactionBarProps) {
   }
 
   return (
-    <div className="mt-3 flex items-center gap-1">
+    <div className="mt-3 flex items-center gap-1.5">
       {REACTIONS.map(({ type, emoji }) => {
         const active = post.userReactions.includes(type);
         const count = post.reactions[type];
@@ -59,10 +59,10 @@ export function ReactionBar({ post, onReact }: ReactionBarProps) {
             key={type}
             onClick={() => handleClick(type)}
             disabled={pending.has(type)}
-            className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition disabled:opacity-60 ${
+            className={`flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition disabled:opacity-60 ${
               active
-                ? "border-primary/30 bg-primary/10 text-primary"
-                : "border-border text-muted-foreground hover:border-primary/30 hover:text-primary"
+                ? "border-[#0d99ff]/40 bg-[#0d99ff]/12 text-[#0d99ff]"
+                : "border-border text-muted-foreground hover:border-[#0d99ff]/30 hover:text-[#0d99ff]"
             }`}
           >
             <span>{emoji}</span>

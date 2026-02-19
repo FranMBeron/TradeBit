@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 
 interface FieldError {
@@ -53,7 +52,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-8 shadow-xl">
+    <div className="bg-card border border-border-subtle rounded-2xl p-8 shadow-2xl shadow-black/40 ring-1 ring-border-subtle">
       <h1 className="text-xl font-semibold text-foreground mb-1">Create account</h1>
       <p className="text-sm text-muted-foreground mb-6">Join the trading community</p>
 
@@ -75,7 +74,7 @@ export default function RegisterPage() {
                     ? "trader_name"
                     : "••••••••"
               }
-              className={`w-full rounded-lg border px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition ${fieldErrors[field] ? "border-destructive" : "border-input"}`}
+              className={`w-full rounded-xl border px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition ${fieldErrors[field] ? "border-destructive" : "border-input"}`}
             />
             {fieldErrors[field] && (
               <p className="text-xs text-destructive">{fieldErrors[field]}</p>
@@ -89,14 +88,21 @@ export default function RegisterPage() {
           </p>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account…" : "Create account"}
-        </Button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 font-heading"
+          style={{
+            background: "linear-gradient(135deg, #0d99ff 0%, #2e81fd 100%)",
+          }}
+        >
+          {loading ? "Creating account…" : "Create account →"}
+        </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary hover:underline font-medium">
+        <Link href="/login" className="text-[#0d99ff] hover:text-[#2e81fd] transition-colors font-medium">
           Sign in
         </Link>
       </p>

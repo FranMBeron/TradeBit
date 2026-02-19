@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 
 export default function LoginPage() {
@@ -33,7 +32,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-8 shadow-xl">
+    <div className="bg-card border border-border-subtle rounded-2xl p-8 shadow-2xl shadow-black/40 ring-1 ring-border-subtle">
       <h1 className="text-xl font-semibold text-foreground mb-1">Welcome back</h1>
       <p className="text-sm text-muted-foreground mb-6">Sign in to your account</p>
 
@@ -48,7 +47,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="you@example.com"
-            className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
+            className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
           />
         </div>
 
@@ -62,7 +61,7 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="••••••••"
-            className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
+            className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
           />
         </div>
 
@@ -72,14 +71,21 @@ export default function LoginPage() {
           </p>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in…" : "Sign in"}
-        </Button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 font-heading"
+          style={{
+            background: "linear-gradient(135deg, #0d99ff 0%, #2e81fd 100%)",
+          }}
+        >
+          {loading ? "Signing in…" : "Sign in →"}
+        </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         No account?{" "}
-        <Link href="/register" className="text-primary hover:underline font-medium">
+        <Link href="/register" className="text-[#0d99ff] hover:text-[#2e81fd] transition-colors font-medium">
           Create one
         </Link>
       </p>

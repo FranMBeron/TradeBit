@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 import { APP_NAME } from "@tradebit/shared/constants";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${geist.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 
 export default function ConnectWallbitPage() {
@@ -31,15 +30,15 @@ export default function ConnectWallbitPage() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-8 shadow-xl">
+    <div className="bg-card border border-border-subtle rounded-2xl p-8 shadow-2xl shadow-black/40 ring-1 ring-border-subtle">
       <h1 className="text-xl font-semibold text-foreground mb-1">Connect Wallbit</h1>
       <p className="text-sm text-muted-foreground mb-6">
         Link your Wallbit account to share real trades and copy other traders.
       </p>
 
-      <div className="mb-6 rounded-lg bg-secondary/50 border border-border px-4 py-3 text-xs text-muted-foreground space-y-1">
+      <div className="mb-6 rounded-xl bg-[#0d99ff]/5 border border-[#0d99ff]/20 px-4 py-4 text-xs text-muted-foreground space-y-1.5">
         <p className="font-medium text-foreground">Where to find your API key:</p>
-        <p>1. Log in to <span className="text-primary">wallbit.io</span></p>
+        <p>1. Log in to <a href="https://wallbit.io" target="_blank" rel="noopener noreferrer" className="text-[#0d99ff] hover:text-[#2e81fd] transition-colors underline underline-offset-2">wallbit.io</a></p>
         <p>2. Go to Settings → API Keys</p>
         <p>3. Generate a new key and paste it below</p>
       </div>
@@ -55,7 +54,7 @@ export default function ConnectWallbitPage() {
             onChange={(e) => setApiKey(e.target.value)}
             required
             placeholder="wb_live_••••••••••••"
-            className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition font-mono"
+            className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition font-mono"
           />
         </div>
 
@@ -65,9 +64,16 @@ export default function ConnectWallbitPage() {
           </p>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Connecting…" : "Connect account"}
-        </Button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 font-heading"
+          style={{
+            background: "linear-gradient(135deg, #0d99ff 0%, #2e81fd 100%)",
+          }}
+        >
+          {loading ? "Connecting…" : "Connect Wallbit →"}
+        </button>
       </form>
 
       <p className="mt-4 text-center">

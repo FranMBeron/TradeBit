@@ -43,7 +43,7 @@ export function ProfileHeader({ profile, currentUser }: Props) {
       <div className="flex items-start justify-between gap-4">
         {/* Avatar + info */}
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-primary/15 ring-1 ring-primary/25 flex items-center justify-center text-primary text-xl font-mono font-semibold shrink-0 overflow-hidden">
+          <div className="h-16 w-16 rounded-full bg-[#0d99ff]/15 ring-2 ring-[#0d99ff]/30 flex items-center justify-center text-[#0d99ff] text-xl font-heading font-semibold shrink-0 overflow-hidden">
             {profile.avatarUrl ? (
               <img
                 src={profile.avatarUrl}
@@ -55,7 +55,7 @@ export function ProfileHeader({ profile, currentUser }: Props) {
             )}
           </div>
           <div>
-            <p className="text-base font-semibold text-foreground leading-tight">
+            <p className="text-base font-semibold text-foreground leading-tight font-heading">
               {profile.displayName ?? profile.username}
             </p>
             <p className="text-sm text-muted-foreground font-mono">@{profile.username}</p>
@@ -82,7 +82,7 @@ export function ProfileHeader({ profile, currentUser }: Props) {
       </div>
 
       {/* Stats */}
-      <div className="mt-4 pt-4 border-t border-border flex items-center gap-1 text-sm">
+      <div className="mt-4 pt-4 border-t border-border-subtle flex items-center gap-1 text-sm">
         {[
           { label: "followers", value: followerCount },
           { label: "following", value: profile.stats.following },
@@ -90,7 +90,7 @@ export function ProfileHeader({ profile, currentUser }: Props) {
         ].map(({ label, value }, i) => (
           <span key={label} className="flex items-center gap-1">
             {i > 0 && <span className="text-border mx-2">·</span>}
-            <span className="font-mono font-semibold text-foreground">{value}</span>
+            <span className="font-mono font-semibold text-foreground text-base">{value}</span>
             <span className="text-muted-foreground text-xs">{label}</span>
           </span>
         ))}

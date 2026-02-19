@@ -37,10 +37,10 @@ function WallbitConnectModal({ onClose, onConnected }: WallbitConnectModalProps)
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#14161c]/80 backdrop-blur-sm px-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-xl">
+      <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-card p-6 shadow-2xl shadow-black/50">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-semibold text-foreground">Conectá tu cuenta Wallbit</h2>
@@ -67,7 +67,7 @@ function WallbitConnectModal({ onClose, onConnected }: WallbitConnectModalProps)
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder="Pegá tu API key aquí..."
-          className="w-full rounded-lg border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+          className="w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-[#0d99ff]/50 focus:outline-none focus:ring-1 focus:ring-[#0d99ff]/30"
           onKeyDown={(e) => { if (e.key === "Enter") handleConnect(); }}
         />
 
@@ -87,7 +87,7 @@ function WallbitConnectModal({ onClose, onConnected }: WallbitConnectModalProps)
           <button
             onClick={handleConnect}
             disabled={!apiKey.trim() || loading}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-[#0d99ff] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2e81fd] disabled:cursor-not-allowed disabled:opacity-50 font-heading"
           >
             {loading ? "Conectando..." : "Conectar Wallbit →"}
           </button>
@@ -192,7 +192,7 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex gap-3">
           {/* Avatar */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0d99ff]/15 text-sm font-bold text-[#0d99ff] font-heading">
             {initials}
           </div>
 
@@ -209,7 +209,7 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
 
             {/* Trade embed panel */}
             {showTrade && (
-              <div className="rounded-lg border border-border bg-background p-3 space-y-2">
+              <div className="rounded-xl border border-border-subtle bg-background-alt p-3 space-y-2">
                 <div className="flex items-center gap-2">
                   {/* Ticker */}
                   <input
@@ -218,7 +218,7 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
                     onChange={(e) => setTicker(e.target.value.toUpperCase())}
                     placeholder="Ticker (ej: NVDA)"
                     maxLength={10}
-                    className="w-28 rounded-md border border-border bg-input px-2 py-1.5 font-mono text-xs text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none uppercase"
+                    className="w-28 rounded-md border border-border bg-input px-2 py-1.5 font-mono text-xs text-foreground placeholder:text-muted-foreground/50 focus:border-[#0d99ff]/50 focus:outline-none uppercase"
                   />
 
                   {/* BUY / SELL toggle */}
@@ -231,8 +231,8 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
                         className={`px-3 py-1.5 text-xs font-bold transition ${
                           action === opt
                             ? opt === "BUY"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-destructive text-destructive-foreground"
+                              ? "bg-[#2e81fd] text-white"
+                              : "bg-[#fe566b] text-white"
                             : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
@@ -268,7 +268,7 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
                 disabled={checkingWallbit}
                 className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
                   showTrade
-                    ? "bg-primary/15 text-primary hover:bg-primary/25"
+                    ? "bg-[#0d99ff]/15 text-[#0d99ff] hover:bg-[#0d99ff]/25"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 } disabled:opacity-50`}
               >
@@ -283,7 +283,10 @@ export function PostComposer({ user, onPost }: PostComposerProps) {
                 <button
                   onClick={handleSubmit}
                   disabled={!content.trim() || submitting}
-                  className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl px-4 py-1.5 text-sm font-semibold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 font-heading"
+                  style={{
+                    background: "linear-gradient(135deg, #0d99ff 0%, #2e81fd 100%)",
+                  }}
                 >
                   {submitting ? "..." : "Post →"}
                 </button>
