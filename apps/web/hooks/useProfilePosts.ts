@@ -1,9 +1,11 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/providers/AuthProvider";
 import type { Post } from "@/types/feed";
 
 export function useProfilePosts(username: string) {
+  const { loading: authLoading } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -23,6 +25,7 @@ export function useProfilePosts(username: string) {
   );
 
   useEffect(() => {
+    if (authLoading) return;
     if (initializedRef.current) return;
     initializedRef.current = true;
     setLoading(true);
@@ -33,7 +36,7 @@ export function useProfilePosts(username: string) {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [fetchPosts]);
+  }, [authLoading, fetchPosts]);
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return;

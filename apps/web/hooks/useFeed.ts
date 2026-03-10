@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/providers/AuthProvider";
 import type { Post, ReactionType } from "@/types/feed";
 
 interface FeedResponse {
@@ -10,6 +11,7 @@ interface FeedResponse {
 }
 
 export function useFeed() {
+  const { loading: authLoading } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -25,8 +27,9 @@ export function useFeed() {
     return apiFetch<FeedResponse>(`/feed${params}`);
   }, []);
 
-  // Initial load
+  // Initial load — wait for auth to finish so the session cookie is set
   useEffect(() => {
+    if (authLoading) return;
     if (initializedRef.current) return;
     initializedRef.current = true;
 
@@ -38,7 +41,7 @@ export function useFeed() {
       })
       .catch(() => setError("No pudimos cargar el feed."))
       .finally(() => setLoading(false));
-  }, [fetchPage]);
+  }, [authLoading, fetchPage]);
 
   // Load next page
   const loadMore = useCallback(async () => {

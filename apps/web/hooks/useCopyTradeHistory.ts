@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/providers/AuthProvider";
 
 export interface CopyTradeEntry {
   id: string;
@@ -29,6 +30,7 @@ interface HistoryResponse {
 }
 
 export function useCopyTradeHistory() {
+  const { loading: authLoading } = useAuth();
   const [trades, setTrades] = useState<CopyTradeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -45,6 +47,7 @@ export function useCopyTradeHistory() {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
     if (initializedRef.current) return;
     initializedRef.current = true;
     fetchPage()
@@ -54,7 +57,7 @@ export function useCopyTradeHistory() {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [fetchPage]);
+  }, [authLoading, fetchPage]);
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return;
