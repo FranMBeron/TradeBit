@@ -10,7 +10,12 @@ const SETUP_ROUTES = ["/connect-wallbit"];
 // Rutas públicas: accesibles sin autenticación, nunca redirigidas
 const PUBLIC_ROUTES = ["/verify-email"];
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
+  // In demo mode, all routes are accessible without auth — AuthProvider handles login
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("access_token")?.value;
   const refreshToken = request.cookies.get("refresh_token")?.value;

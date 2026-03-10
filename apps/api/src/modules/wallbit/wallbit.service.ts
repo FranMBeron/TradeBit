@@ -77,6 +77,17 @@ export async function getConnectionStatus(userId: string) {
 }
 
 export async function getUserPortfolio(userId: string) {
+  // Demo mode: return mock portfolio without touching Wallbit API
+  if (process.env.DEMO_MODE === "true") {
+    return [
+      { symbol: "NVDA", shares: 12, avgPrice: 875.50, currentPrice: 942.30, usdBalance: 11307.60 },
+      { symbol: "AAPL", shares: 25, avgPrice: 178.20, currentPrice: 198.75, usdBalance: 4968.75 },
+      { symbol: "MSFT", shares: 8, avgPrice: 398.10, currentPrice: 420.30, usdBalance: 3362.40 },
+      { symbol: "TSLA", shares: 15, avgPrice: 245.80, currentPrice: 187.50, usdBalance: 2812.50 },
+      { symbol: "AMZN", shares: 18, avgPrice: 178.40, currentPrice: 212.60, usdBalance: 3826.80 },
+    ];
+  }
+
   const rows = await db.select().from(wallbitKeys).where(eq(wallbitKeys.userId, userId)).limit(1);
   const key = rows[0];
 

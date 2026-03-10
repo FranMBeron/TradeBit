@@ -40,6 +40,10 @@ server.get("/health", async () => {
 
 const port = Number(process.env.API_PORT) || 3001;
 
+if (process.env.DEMO_MODE === "true") {
+  console.log("⚠️  DEMO MODE enabled — Wallbit API calls are mocked");
+}
+
 try {
   await server.listen({ port, host: "0.0.0.0" });
   console.log(`${APP_NAME} API running on http://localhost:${port}`);

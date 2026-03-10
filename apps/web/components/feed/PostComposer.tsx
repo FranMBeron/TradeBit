@@ -17,6 +17,7 @@ interface WallbitConnectModalProps {
 }
 
 function WallbitConnectModal({ onClose, onConnected }: WallbitConnectModalProps) {
+  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
   const [apiKey, setApiKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,9 @@ function WallbitConnectModal({ onClose, onConnected }: WallbitConnectModalProps)
       <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-card p-6 shadow-2xl shadow-black/50">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold text-foreground">Conectá tu cuenta Wallbit</h2>
+          <h2 className="font-semibold text-foreground">
+            {isDemo ? "Modo Demo" : "Conectá tu cuenta Wallbit"}
+          </h2>
           <button
             onClick={onClose}
             className="text-muted-foreground transition hover:text-foreground"
@@ -53,45 +56,64 @@ function WallbitConnectModal({ onClose, onConnected }: WallbitConnectModalProps)
           </button>
         </div>
 
-        {/* Descripción */}
-        <p className="mb-4 text-sm text-muted-foreground">
-          Para compartir trades reales necesitás vincular tu API key de Wallbit.
-        </p>
+        {isDemo ? (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              La integración con Wallbit está deshabilitada en modo demo.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              En producción, conectarías tu API key de Wallbit para compartir trades reales y ejecutar copy trading.
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full rounded-xl bg-[#0d99ff]/10 border border-[#0d99ff]/20 px-4 py-2 text-sm font-semibold text-[#0d99ff] transition hover:bg-[#0d99ff]/20 font-heading"
+            >
+              Entendido
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Descripción */}
+            <p className="mb-4 text-sm text-muted-foreground">
+              Para compartir trades reales necesitás vincular tu API key de Wallbit.
+            </p>
 
-        {/* Input */}
-        <label className="mb-1 block text-xs font-medium text-muted-foreground">
-          API Key
-        </label>
-        <input
-          type="text"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Pegá tu API key aquí..."
-          className="w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-[#0d99ff]/50 focus:outline-none focus:ring-1 focus:ring-[#0d99ff]/30"
-          onKeyDown={(e) => { if (e.key === "Enter") handleConnect(); }}
-        />
+            {/* Input */}
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              API Key
+            </label>
+            <input
+              type="text"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Pegá tu API key aquí..."
+              className="w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-[#0d99ff]/50 focus:outline-none focus:ring-1 focus:ring-[#0d99ff]/30"
+              onKeyDown={(e) => { if (e.key === "Enter") handleConnect(); }}
+            />
 
-        {/* Error */}
-        {error && (
-          <p className="mt-2 text-xs text-destructive">{error}</p>
+            {/* Error */}
+            {error && (
+              <p className="mt-2 text-xs text-destructive">{error}</p>
+            )}
+
+            {/* Actions */}
+            <div className="mt-5 flex items-center justify-between">
+              <button
+                onClick={onClose}
+                className="text-sm text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
+              >
+                Omitir por ahora
+              </button>
+              <button
+                onClick={handleConnect}
+                disabled={!apiKey.trim() || loading}
+                className="rounded-xl bg-[#0d99ff] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2e81fd] disabled:cursor-not-allowed disabled:opacity-50 font-heading"
+              >
+                {loading ? "Conectando..." : "Conectar Wallbit →"}
+              </button>
+            </div>
+          </>
         )}
-
-        {/* Actions */}
-        <div className="mt-5 flex items-center justify-between">
-          <button
-            onClick={onClose}
-            className="text-sm text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
-          >
-            Omitir por ahora
-          </button>
-          <button
-            onClick={handleConnect}
-            disabled={!apiKey.trim() || loading}
-            className="rounded-xl bg-[#0d99ff] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2e81fd] disabled:cursor-not-allowed disabled:opacity-50 font-heading"
-          >
-            {loading ? "Conectando..." : "Conectar Wallbit →"}
-          </button>
-        </div>
       </div>
     </div>
   );

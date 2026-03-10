@@ -44,6 +44,21 @@ export async function executeCopyTrade(
     throw new ServiceError(400, "Post has no trade to copy");
   }
 
+  // Demo mode: simulate trade execution without calling Wallbit API
+  if (process.env.DEMO_MODE === "true") {
+    const [record] = await db
+      .insert(copyTrades)
+      .values({
+        sourcePostId: postId,
+        copierId,
+        requestedAmount: amount.toString(),
+        status: "executed",
+        executedAt: new Date(),
+      })
+      .returning();
+    return { success: true, tradeId: record!.id, demo: true };
+  }
+
   // 2. Get copier's Wallbit key (throws ServiceError if not connected or invalid)
   const apiKey = await getDecryptedKey(copierId);
 

@@ -60,11 +60,16 @@ export function CopyTradeModal({
 
         {/* Success state */}
         {success ? (
-          <div className="flex flex-col items-center gap-3 py-4">
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#63de77]/20 text-2xl text-[#63de77]">
               ✓
             </div>
             <p className="font-semibold text-[#63de77]">¡Trade ejecutado!</p>
+            {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && (
+              <p className="text-xs text-muted-foreground max-w-[220px]">
+                En producción, esto ejecutaría un trade real a través de la API de Wallbit.
+              </p>
+            )}
           </div>
         ) : (
           <>

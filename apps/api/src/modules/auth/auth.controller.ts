@@ -211,4 +211,39 @@ export async function authRoutes(server: FastifyInstance) {
 
     return { user: sanitizeUser(user) };
   });
+
+  // ── GET /auth/demo-login ──────────────────────────────────
+  // Solo habilitado en DEMO_MODE. Auto-autentica al usuario demo sin password.
+  server.get(
+    "/auth/demo-login",
+    { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
+    async (_request, reply) => {
+      if (process.env.DEMO_MODE !== "true") {
+        return reply.status(404).send({ error: "Not found" });
+      }
+
+      const demoUsername = process.env.DEMO_USER_USERNAME ?? "alextrader";
+      const user = await findUserByUsername(demoUsername);
+
+      if (!user) {
+        return reply.status(404).send({ error: "Not found" });
+      }
+
+      // Demo users bypass normal auth flow (email verification, password check)
+      const tokenPayload = { userId: user.id, email: user.email };
+      const accessToken = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(tokenPayload);
+
+      reply.setCookie(REFRESH_COOKIE, refreshToken, {
+        ...COOKIE_OPTS(isSecure),
+        maxAge: REFRESH_MAX_AGE,
+      });
+      reply.setCookie(ACCESS_COOKIE, accessToken, {
+        ...COOKIE_OPTS(isSecure),
+        maxAge: ACCESS_MAX_AGE,
+      });
+
+      return { user: sanitizeUser(user), accessToken };
+    },
+  );
 }

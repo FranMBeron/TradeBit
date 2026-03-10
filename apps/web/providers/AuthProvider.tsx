@@ -23,7 +23,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    apiFetch<{ user: AuthUser }>("/auth/me")
+    const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+    const endpoint = isDemo ? "/auth/demo-login" : "/auth/me";
+
+    apiFetch<{ user: AuthUser }>(endpoint)
       .then(({ user }) => setUser(user))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
