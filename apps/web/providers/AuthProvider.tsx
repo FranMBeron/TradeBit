@@ -28,7 +28,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     apiFetch<{ user: AuthUser }>(endpoint)
       .then(({ user }) => setUser(user))
-      .catch(() => setUser(null))
+      .catch((err) => {
+        // If the server is still starting up (network error or 5xx) and we
+        // haven't already retried this session, reload once automatically.
+        const status = (typeof err === "object" && err !== null) ? (err as { status?: number }).status : undefined;
+        const isServerError = err instanceof TypeError || (status !== undefined && status >= 500);
+
+        const RELOAD_KEY = "tb_init_reloaded";
+        if (isServerError && !sessionStorage.getItem(RELOAD_KEY)) {
+          sessionStorage.setItem(RELOAD_KEY, "1");
+          window.location.reload();
+          return;
+        }
+
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
